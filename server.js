@@ -60,10 +60,18 @@ app.route('/')
 //post issue to /api/issues/{projectname}
 app.post('/api/issues/:project/', async (req, res) => {
   const projectName = req.params.project;
-  const { issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
+  let { issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
 
   if (!issue_title || !issue_text || !created_by) {
     return res.json({ error: 'required field(s) missing' })
+  }
+
+  if (!status_text) {
+    status_text = "";
+  }
+
+  if (!assigned_to) {
+      assigned_to = "";
   }
 
   let existingProject = await projects.findOne({ name: projectName });
@@ -132,12 +140,12 @@ app.get('/api/issues/:project/', async (req, res) => {
 
 })
 
-//Failed:You can send a PUT request to /api/issues/{projectname} with an _id and one or more fields to update. On success, the updated_on field should be updated, and returned should be {  result: 'successfully updated', '_id': _id }.
+//You can send a PUT request to /api/issues/{projectname} with an _id and one or more fields to update. On success, the updated_on field should be updated, and returned should be {  result: 'successfully updated', '_id': _id }.
 app.put('/api/issues/:project/', async (req, res) => {
   const { _id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
 
   if (!_id) {
-    return res.json({ error: 'missing id' })
+    return res.json({ error: 'missing _id' })
   }
   if (!issue_title && !issue_text && !created_by && !assigned_to && !status_text && !open) {
     return res.json({ error: 'no update field(s) sent', '_id': _id })
@@ -172,6 +180,20 @@ app.put('/api/issues/:project/', async (req, res) => {
 
   return res.json({ result: 'successfully updated', '_id': _id });
 
+})
+
+//You can send a DELETE request to /api/issues/{projectname} with an _id to delete an issue. If no _id is sent, the return value is { error: 'missing _id' }. On success, the return value is { result: 'successfully deleted', '_id': _id }. On failure, the return value is { error: 'could not delete', '_id': _id }.
+app.delete('/api/issues/:project/', async (req, res) => {
+  const _id = req.body._id?.toString();
+  if (!_id) {
+    return res.json({ error: 'missing _id' })
+  }
+  const issueToDelete = await issues.deleteOne({ _id: new ObjectId(_id) })
+  if (issueToDelete.deletedCount) {
+    return res.json({ result: 'successfully deleted', '_id': _id });
+  } else {
+    return res.json({ error: 'could not delete', '_id': _id });
+  }
 })
 
 //For FCC testing purposes
