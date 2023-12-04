@@ -287,7 +287,7 @@ suite('Functional Tests', function() {
       });
   });
 
-  test('Delete an issue with an invalid _id: DELETE request to /api/issues/{project}', function(done) {
+  test('Delete an issue with missing _id: DELETE request to /api/issues/{project}', function(done) {
     chai
       .request(server)
       .keepOpen()
@@ -300,7 +300,7 @@ suite('Functional Tests', function() {
     done();
   });
 
-  test('Delete an issue with missing _id: DELETE request to /api/issues/{project}', function(done) {
+  test('Delete an issue with an invalid _id: DELETE request to /api/issues/{project}', function(done) {
     const invalidId = "000000000000000000000000"
     chai
       .request(server)
